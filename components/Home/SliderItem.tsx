@@ -1,7 +1,7 @@
 import React from 'react'
 import { Image, View,Text, StyleSheet, Pressable } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-function CategoriesItem({image, title, tag}) {
+function SliderItem({image, title, tag}) {
   const navigation = useNavigation()
  
   function navigateToCategoriesDetail () {
@@ -48,4 +48,4 @@ const styles = StyleSheet.create({
     opacity: 0.75
   }
 })
-export default CategoriesItem
+export default SliderItem

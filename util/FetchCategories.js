@@ -36,3 +36,19 @@ export const fetchListCategories = async (tag) => {
     throw new Error("Could not fetch data");
   }
 };
+export const fetchMenu = async () => {
+  const options = {
+    method: "GET",
+    url: "https://yummly2.p.rapidapi.com/categories/list",
+    headers: {
+      "X-RapidAPI-Key": "17f0082575msh90c99cc71240602p109d4fjsn0f2f269ba0a0",
+      "X-RapidAPI-Host": "yummly2.p.rapidapi.com",
+    },
+  };
+  try {
+    const response = await axios.request(options);
+    return response.data;
+  } catch (err) {
+    throw new Error("Could not fetch menu, please try again later");
+  }
+};
