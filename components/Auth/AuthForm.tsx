@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logUserIn } from "../../store/AuthReducer";
 import { useNavigation } from "@react-navigation/native";
 import LoadingOverlay from "../ui/LoadingOverlay";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 function AuthForm() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -57,37 +58,40 @@ function AuthForm() {
     // console.log(enteredEmail.email, enteredPassword.password, enteredRepeatPassword.repeatPassword)
     try {
       setIsFetching(true);
-      if (formIsValidate && isSignUp && enteredEmail.email && enteredPassword.password) {
+      if (
+        formIsValidate &&
+        isSignUp &&
+        enteredEmail.email &&
+        enteredPassword.password
+      ) {
         const email = enteredEmail.email;
         const password = enteredPassword.password;
-
         const response = await signUp(email, password);
+        console.log(response.data)
         setIsFetching(false);
         dispatch(logUserIn(response.idToken));
-        console.log(response);
-        navigation.goBack();
-      }
-     if (formIsValidate && !isSignUp && enteredEmail.email && enteredPassword.password  ) {
+
+        await AsyncStorage.setItem("idToken", JSON.stringify(response.idToken));
+        navigation.navigate('Home');
+      } else if (
+        formIsValidate &&
+        !isSignUp &&
+        enteredEmail.email &&
+        enteredPassword.password
+      ) {
         const email = enteredEmail.email;
         const password = enteredPassword.password;
         const response = await login(email, password);
         dispatch(logUserIn(response.idToken));
+        await AsyncStorage.setItem("idToken", JSON.stringify(response.idToken));
+
         setIsFetching(false);
-        navigation.goBack();
-      }
-      else {
-        Alert.alert(
-            "Wrong email or password",
-            "Can't sign up/ login at the moment, please try again later"
-          );
-      }
+        navigation.navigate('Home');
+      } 
     } catch (err) {
       setIsFetching(false);
-
-      Alert.alert(
-        "Wrong email or password",
-        err.message
-      );
+     
+      Alert.alert("Some thing went wrong, please try again later", err.message);
     }
   };
   if (isFetching)
@@ -101,10 +105,12 @@ function AuthForm() {
             keyboardType={"email-address"}
             autoCapitalize="none"
             autoComplete="off"
-            style={[styles.textInput, !enteredEmail.isValid && styles.textInputHasError]}
+            style={[
+              styles.textInput,
+              !enteredEmail.isValid && styles.textInputHasError,
+            ]}
             value={enteredEmail.email}
             onChangeText={enteredEmailHandler}
-            
           />
         </View>
         <View style={styles.inputContainer}>
@@ -113,7 +119,10 @@ function AuthForm() {
             autoCapitalize="none"
             secureTextEntry={true}
             autoComplete="off"
-            style={[styles.textInput, !enteredPassword.isValid && styles.textInputHasError]}
+            style={[
+              styles.textInput,
+              !enteredPassword.isValid && styles.textInputHasError,
+            ]}
             value={enteredPassword.password}
             onChangeText={enteredPasswordHandler}
           />
@@ -125,7 +134,10 @@ function AuthForm() {
               autoCapitalize="none"
               secureTextEntry={true}
               autoComplete="off"
-              style={[styles.textInput, !enteredRepeatPassword.isValid && styles.textInputHasError]}
+              style={[
+                styles.textInput,
+                !enteredRepeatPassword.isValid && styles.textInputHasError,
+              ]}
               value={enteredRepeatPassword.repeatPassword}
               onChangeText={enteredRepeatPasswordHandler}
             />
@@ -152,7 +164,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 50,
   },
-  
+
   authContainer: {
     padding: 16,
 
@@ -177,7 +189,7 @@ const styles = StyleSheet.create({
     backgroundColor: color.gray400,
   },
   textInputHasError: {
-    borderColor: color.red500
+    borderColor: color.red500,
   },
   buttonContainer: {
     flexDirection: "row",

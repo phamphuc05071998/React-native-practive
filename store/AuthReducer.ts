@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from '@reduxjs/toolkit'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
+
 const initialState = {
   isLogin: false,
   token: "",
@@ -11,6 +15,7 @@ const authSlide = createSlice({
     logUserIn: (state, action: PayloadAction<string>) => {
       state.isLogin = true;
       state.token = action.payload;
+      
     },
     logUserOut: (state) => {
       state.isLogin = false;

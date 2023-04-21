@@ -14,14 +14,17 @@ import MenuItemScreen from "./screens/MenuItemScreen";
 import AuthScreens from "./screens/AuthScreens";
 import { Provider } from "react-redux";
 import store from "./store/reduxStore";
-import { useSelector } from "react-redux";
+import { useSelector , useDispatch } from "react-redux";
 import { RootState } from "./store/reduxStore";
 import ProfileScreens from "./screens/ProfileScreens";
+import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { logUserIn } from "./store/AuthReducer";
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 const StackNavigator = () => {
   const openDrawerHandler = () => {};
-  const isLogin = useSelector((state: RootState) => state.auth.isLogin)
+  const isLogin = useSelector((state: RootState) => state.auth.isLogin);
   return (
     <>
       <Drawer.Navigator
@@ -66,7 +69,7 @@ const StackNavigator = () => {
             }}
           />
         )}
-          {isLogin && (
+        {isLogin && (
           <Drawer.Screen
             name="Logout"
             component={ProfileScreens}
@@ -82,17 +85,21 @@ const StackNavigator = () => {
     </>
   );
 };
-// function Root ()  {
-//   // const isLogin = useSelector((state: RootState) => state.auth.isLogin);
-//   // console.log(isLogin)
-//   return (
-
-//   );
-// };
-export default function App() {
-  return (
-    <Provider store={store}>
-      <NavigationContainer>
+function Root ()  {
+  const [isTryingLogin, setIsTryingLogin] = useState(true)
+  const dispatch = useDispatch()
+  useEffect(() => {
+    const fetchToken = async () => {
+      const idToken = await AsyncStorage.getItem('idToken')
+      if (idToken) {
+        dispatch(logUserIn(idToken))
+      }
+      setIsTryingLogin(false)
+    }
+    fetchToken()
+  }, [isTryingLogin])
+  return <>
+     <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
             name="Drawer"
@@ -106,6 +113,13 @@ export default function App() {
           <Stack.Screen name="MenuItemScreen" component={MenuItemScreen} />
         </Stack.Navigator>
       </NavigationContainer>
+  </>
+};
+export default function App() {
+ 
+  return (
+    <Provider store={store}>
+      <Root />
     </Provider>
   );
 }
